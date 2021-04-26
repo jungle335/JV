@@ -125,6 +125,7 @@ public class CreeareCont implements ActionListener {
                 TableRowSorter<DefaultTableModel> tr = new TableRowSorter<>(model);
                 tabel.setRowSorter(tr);
                 tr.setRowFilter(RowFilter.regexFilter(s));
+                Loguri.catchLogs("I", "Cautare autor");
             }
         });
 
@@ -153,14 +154,18 @@ public class CreeareCont implements ActionListener {
         return info;
     }
 
-    public String [][] sortare(int poz){
+    public void sortare(JRadioButton elem, DefaultTableModel m, int poz){
+        elem.setSelected(false);
+        m.setRowCount(0);
         String [][] infos = umpleJtable(b.getCarti());
         Arrays.sort(infos, (s1, s2) -> {
             String titlu1 = s1[poz];
             String titlu2 = s2[poz];
             return titlu1.compareToIgnoreCase(titlu2);
         });
-        return infos;
+        for(String[] s : infos){
+            m.addRow(s);
+        }
     }
 
     public void openLogWindow(){
@@ -220,21 +225,13 @@ public class CreeareCont implements ActionListener {
         btn1.setBounds(200, 390, 100, 30);
         btn2.setBounds(350, 390, 100, 30);
         jr.addActionListener(e1 -> {
-            jr1.setSelected(false);
-            model.setRowCount(0);
-            String [][] infos = sortare(1);
-            for(String[] s : infos){
-                model.addRow(s);
-            }
+            sortare(jr1, model, 1);
+            Loguri.catchLogs("I", "Sortare carti dupa titlu");
         });
 
         jr1.addActionListener(e13 -> {
-            jr.setSelected(false);
-            model.setRowCount(0);
-            String[][] infos = sortare(4);
-            for(String[] s : infos){
-                model.addRow(s);
-            }
+            sortare(jr, model, 4);
+            Loguri.catchLogs("I", "Sortare carti dupa categorie");
         });
 
         DefaultListModel modell = new DefaultListModel();
@@ -262,6 +259,7 @@ public class CreeareCont implements ActionListener {
                 }
                 if (!modell.contains(elem)) {
                         modell.addElement(elem);
+                        Loguri.catchLogs("I", "Adaugare in wishlist");
                         try{
                             FileWriter fw = new FileWriter("prefUtil.csv", true);
                             String [] data = {logged.get(0).getNume(), logged.get(0).getPrenume(), elem};
@@ -308,6 +306,7 @@ public class CreeareCont implements ActionListener {
                     }
                     FisierIN <String> out = new FisierIN(Carte.class,  "prefUtil.csv", ",");
                     out.writeInFile(loc);
+                    Loguri.catchLogs("I", "Stergere din wishlist");
                     bf.close();
                 }catch (Exception e){
                     JOptionPane.showMessageDialog(utilizatorFrame, "Eroare neprevazuta...", "Notificare",
