@@ -7,7 +7,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -26,6 +25,7 @@ public class CreeareCont implements ActionListener {
     private JButton cont = new JButton("Acces cont");
     private final Object[] coloane = { "Nume", "Prenume"}, col = {"Id", "Titlu", "Autor"}, coloanee = { "Id", "Titlu", "Nume", "Prenume", "Categorie"};
     private Biblioteca b = new Biblioteca();
+    private Loguri log = new Loguri();
     DefaultTableModel model = new DefaultTableModel(umpleJtable(b.getAutori()), coloane);
     JTable tabel = new JTable(model);
     JScrollPane sp = new JScrollPane(tabel);
@@ -93,11 +93,11 @@ public class CreeareCont implements ActionListener {
                 JOptionPane.showMessageDialog(frame, "Contul tau a fost creat.", "Notificare", JOptionPane.INFORMATION_MESSAGE);
                 JOptionPane.showMessageDialog(frame, "Numele de utilizator este: " + nume + prenume, "Notificare", JOptionPane.INFORMATION_MESSAGE);
                 b.addCont(cititor);
-                Loguri.catchLogs("I", "Cont creat");
+                log.catchLogs("I", "Cont creat");
             }
         }
 
-        if (e.getSource() == cont) { openLogWindow(); }
+        if (e.getSource() == cont) { openLogWindow();}
 
         if(e.getSource() == afis) {
             if(flag){
@@ -114,7 +114,7 @@ public class CreeareCont implements ActionListener {
             }
             else {
                 JOptionPane.showMessageDialog(frame, "Trebuie sa fii logat!", "Notificare", JOptionPane.WARNING_MESSAGE);
-                Loguri.catchLogs("W", "Conectare necesara");
+                log.catchLogs("W", "Conectare necesara");
             }
         }
         searchBar.addKeyListener(new KeyAdapter() {
@@ -125,7 +125,6 @@ public class CreeareCont implements ActionListener {
                 TableRowSorter<DefaultTableModel> tr = new TableRowSorter<>(model);
                 tabel.setRowSorter(tr);
                 tr.setRowFilter(RowFilter.regexFilter(s));
-                Loguri.catchLogs("I", "Cautare autor");
             }
         });
 
@@ -134,7 +133,7 @@ public class CreeareCont implements ActionListener {
                 utilizatorWindow();
             }else{
                 JOptionPane.showMessageDialog(frame, "Trebuie sa fii logat!", "Notificare", JOptionPane.WARNING_MESSAGE);
-                Loguri.catchLogs("W", "Conectare necesara");
+                log.catchLogs("W", "Conectare necesara");
             }
         }
     }
@@ -185,7 +184,7 @@ public class CreeareCont implements ActionListener {
         Map.Entry<Boolean, Cititor> user_info = b.verificaCont(utilizator, parola1).entrySet().iterator().next();
         if (user_info.getKey()) {
             JOptionPane.showMessageDialog(loginFrame, "Autentificare reusita", "Notificare", JOptionPane.INFORMATION_MESSAGE);
-            Loguri.catchLogs("I", "Conectare reusita");
+            log.catchLogs("I", "Conectare reusita");
             flag = true;
             logged.add(user_info.getValue());
             LocalDate valab = user_info.getValue().getValabPermisCititor();
@@ -196,9 +195,8 @@ public class CreeareCont implements ActionListener {
             loginFrame.dispatchEvent(new WindowEvent(loginFrame, WindowEvent.WINDOW_CLOSING));
         } else {
             JOptionPane.showMessageDialog(loginFrame, "Autentificare nereusita", "Notificare", JOptionPane.ERROR_MESSAGE);
-            Loguri.catchLogs("E", "Conectare esuata");
-        }
-        });
+            log.catchLogs("E", "Conectare esuata");
+        }});
         loginFrame.add(u);
         loginFrame.add(uLogin);
         loginFrame.add(parLog);
@@ -225,13 +223,13 @@ public class CreeareCont implements ActionListener {
         btn1.setBounds(200, 390, 100, 30);
         btn2.setBounds(350, 390, 100, 30);
         jr.addActionListener(e1 -> {
+            log.catchLogs("I", "Sortare carti dupa titlu");
             sortare(jr1, model, 1);
-            Loguri.catchLogs("I", "Sortare carti dupa titlu");
         });
 
         jr1.addActionListener(e13 -> {
+            log.catchLogs("I", "Sortare carti dupa categorie");
             sortare(jr, model, 4);
-            Loguri.catchLogs("I", "Sortare carti dupa categorie");
         });
 
         DefaultListModel modell = new DefaultListModel();
@@ -246,26 +244,26 @@ public class CreeareCont implements ActionListener {
             }
             bf.close();
         }catch (Exception e){
-            Loguri.catchLogs("E", "Eroare neprevazuta...");
+            log.catchLogs("E", "Eroare neprevazuta...");
         }
 
         JList favorite = new JList(modell);
         btn.addActionListener(e14 -> {
             try {
-                FisierIN <String> in = new FisierIN(Carte.class,  "carti.csv", ",");
+                FisierIN in = new FisierIN("carti.csv", ",");
                 String elem = in.getInfo(Integer.parseInt(jtf.getText()))[1];
                 if (elem.equals("")){
                     throw new Exception();
                 }
                 if (!modell.contains(elem)) {
                         modell.addElement(elem);
-                        Loguri.catchLogs("I", "Adaugare in wishlist");
+                        log.catchLogs("I", "Adaugare in wishlist");
                         try{
-                            FileWriter fw = new FileWriter("prefUtil.csv", true);
-                            String [] data = {logged.get(0).getNume(), logged.get(0).getPrenume(), elem};
-                            fw.append("\n");
-                            fw.append(String.join(",", data));
-                            fw.close();
+                            FisierIN out = new FisierIN("prefUtil.csv", ",");
+                            List<String> data = new ArrayList<>(){{
+                                add(logged.get(0).getNume() + "," + logged.get(0).getPrenume() + "," + elem);
+                            }};
+                            out.writeInFile(data);
                         }catch (Exception e){
                             JOptionPane.showMessageDialog(utilizatorFrame, "Eroare neprevazuta...", "Notificare",
                                     JOptionPane.WARNING_MESSAGE);
@@ -280,7 +278,7 @@ public class CreeareCont implements ActionListener {
             }
         });
         btn1.addActionListener(e15 -> {
-                FisierIN <String> in = new FisierIN(Carte.class,  "carti.csv", ",");
+                FisierIN in = new FisierIN( "carti.csv", ",");
                 String [] elem = in.getInfo(Integer.parseInt(jtf.getText()));
                 try {
                     if (Objects.equals(elem[0], "")) {
@@ -304,9 +302,9 @@ public class CreeareCont implements ActionListener {
                             loc.add(data[0] + "," + data[1] + "," + data[2]);
                         }
                     }
-                    FisierIN <String> out = new FisierIN(Carte.class,  "prefUtil.csv", ",");
+                    FisierIN out = new FisierIN("prefUtil.csv", ",");
                     out.writeInFile(loc);
-                    Loguri.catchLogs("I", "Stergere din wishlist");
+                    log.catchLogs("I", "Stergere din wishlist");
                     bf.close();
                 }catch (Exception e){
                     JOptionPane.showMessageDialog(utilizatorFrame, "Eroare neprevazuta...", "Notificare",
