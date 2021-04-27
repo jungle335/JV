@@ -298,7 +298,9 @@ public class CreeareCont implements ActionListener {
                             continue;
                         }
                         String [] data = row.split(",");
-                        if (!Objects.equals(data[2], elem[1])){
+                        if (Objects.equals(logged.get(0).getNume(), data[0])
+                              && Objects.equals(logged.get(0).getPrenume(), data[1])
+                              && !Objects.equals(data[2], elem[1])){
                             loc.add(data[0] + "," + data[1] + "," + data[2]);
                         }
                     }
