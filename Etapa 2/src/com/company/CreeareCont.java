@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -287,7 +288,6 @@ public class CreeareCont implements ActionListener {
                 }catch (Exception e){
                     JOptionPane.showMessageDialog(utilizatorFrame, e.getMessage(), "Notificare", JOptionPane.WARNING_MESSAGE);
                 }
-
                 modell.removeElement(elem[1]);
                 try{
                     BufferedReader bf = new BufferedReader(new FileReader("prefUtil.csv"));
@@ -302,10 +302,17 @@ public class CreeareCont implements ActionListener {
                             loc.add(data[0] + "," + data[1] + "," + data[2]);
                         }
                     }
-                    FisierIN out = new FisierIN("prefUtil.csv", ",");
-                    out.writeInFile(loc);
+                    try{
+                        FileWriter fw = new FileWriter("prefUtil.csv");
+                        for(String s : loc){
+                            fw.append(String.join(",", s));
+                            fw.append("\n");
+                        }
+                        fw.close();
+                    } catch (Exception e){
+                        System.out.println("Eroare neprevazuta...");
+                    };
                     log.catchLogs("I", "Stergere din wishlist");
-                    bf.close();
                 }catch (Exception e){
                     JOptionPane.showMessageDialog(utilizatorFrame, "Eroare neprevazuta...", "Notificare",
                             JOptionPane.WARNING_MESSAGE);
