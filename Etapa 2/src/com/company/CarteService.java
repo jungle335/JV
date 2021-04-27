@@ -54,6 +54,15 @@ public class CarteService {
         }
     }
 
+    public static Carte obtineCarte(int id){
+        for(Carte c : carti){
+            if (c.getIdCarte() == id){
+                return c;
+            }
+        }
+        return null;
+    }
+
     public static List<Carte> toateGen(String categorie){
         List<Carte> categ = new ArrayList<>();
         for(Carte c : carti){

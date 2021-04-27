@@ -1,9 +1,6 @@
 package com.company;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class AutorService{
     private static int dim;
@@ -50,6 +47,15 @@ public class AutorService{
         }
     }
 
+    public static Autor obtineAutor (int id){
+        for(Autor a : autori){
+            if (a.getIdAutor() == id){
+                return a;
+            }
+        }
+        return null;
+    }
+
     public static int obtineIdAutor(String nume, String prenume){
         for(Autor a : autori){
             if (Objects.equals(a.getNume(), nume) && Objects.equals(a.getPrenume(), prenume)){
@@ -59,15 +65,24 @@ public class AutorService{
         return 0;
     }
 
-    public static List<String>getTitluri(int idAutor){
-        List<String> lc = new ArrayList<>();
+    public static Map<Integer, List<Integer>> autoriSiCarti(){
         Carte[] c = CarteService.getCarti();
+        Map<Integer, List<Integer>> d = new HashMap<>();
+
         for(Carte ct : c){
-            if (ct.getIdAutor() == idAutor){
-                lc.add(ct.getTitlu());
-            }
+            d.put(ct.getIdAutor(), new ArrayList<>());
         }
-        return lc;
+        for(Carte ct : c){
+            List<Integer> l = d.get(ct.getIdAutor());
+            l.add(ct.getIdCarte());
+            d.put(ct.getIdAutor(), l);
+        }
+        return d;
+    }
+
+    public static Map<Integer, List<Integer>> autoriSiCarti(int idAutor){
+        Map<Integer, List<Integer>> l = autoriSiCarti();
+        return new HashMap<>(){{ put(idAutor, l.get(idAutor)); }};
     }
 
     public static void sorteaza(){

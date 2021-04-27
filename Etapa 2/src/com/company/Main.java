@@ -1,5 +1,10 @@
 package com.company;
 
+import javax.swing.plaf.LabelUI;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+
 public class Main {
 
     public static void main(String[] args) throws Exception{
@@ -46,15 +51,38 @@ public class Main {
             System.out.println(c);
         }
         System.out.println();
+
         int id = AutorService.obtineIdAutor("Mihail", "Drumes");
         if (id != 0){
             System.out.println("Cartile scrise de Mihail Drumes sunt");
-            for(String t : AutorService.getTitluri(id)){
-                System.out.println("    " + t);
+            List <Integer> idCarti = AutorService.autoriSiCarti(id).get(id);
+            for(int i = 0; i < idCarti.size(); i++){
+                System.out.println("    " + CarteService.obtineCarte(idCarti.get(i)).getTitlu());
             }
         }else{
             System.out.println("Nu avem carti scrise de autorul dat");
         }
 
+        Scanner sc = new Scanner(System.in);
+        System.out.println("\nIntroduceti id-ul cartii");
+        int idCarte = sc.nextInt();
+        Carte c = CarteService.obtineCarte(idCarte);
+
+        if(c == null){
+            System.out.println("Id-ul cartii este invalid!!!");
+        } else{
+            System.out.println("\nCartea cu id-ul " + idCarte + " este: " + c);
+        }
+        System.out.println();
+
+        for(Map.Entry<Integer, List<Integer>> e: AutorService.autoriSiCarti().entrySet()){
+            Autor a = AutorService.obtineAutor(e.getKey());
+            System.out.print(a.getNume() + " " + a.getPrenume() + ": ");
+            for(Integer s : e.getValue()){
+                Carte cl = CarteService.obtineCarte(s);
+                System.out.print(cl.getTitlu() + " ");
+            }
+            System.out.println();
+        }
     }
 }
