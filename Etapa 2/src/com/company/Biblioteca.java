@@ -22,8 +22,8 @@ public class Biblioteca {
         String [] data = {c.getNume(), c.getPrenume(), c.getParola(), String.valueOf(c.getValabPermisCititor())};
         try {
             FileWriter fw = new FileWriter("conexiuni.csv", true);
-            fw.append("\n");
             fw.append(String.join(",", data));
+            fw.append("\n");
             fw.close();
         } catch (Exception e) {
             System.out.println("Eroare neprevazuta...");
@@ -35,7 +35,6 @@ public class Biblioteca {
         try {
             Map<Boolean, Cititor> rez = new HashMap<>() {};
             BufferedReader conturi = new BufferedReader(new FileReader("conexiuni.csv"));
-            conturi.readLine();
             String row;
             while ((row = conturi.readLine()) != null) {
                 String[] info = row.split(",");
@@ -83,10 +82,8 @@ public class Biblioteca {
         try {
             BufferedReader autori = new BufferedReader(new FileReader("autori.csv"));
             Path path = Paths.get("autori.csv");
-            long nr_autori = Files.lines(path).count() - 1;
+            long nr_autori = Files.lines(path).count();
             String [][] info = new String[(int) nr_autori][(int) nr_autori];
-
-            autori.readLine();
             String row;
             int i = 0;
             while ((row = autori.readLine()) != null) {
