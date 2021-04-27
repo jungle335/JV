@@ -1,6 +1,7 @@
-Apr 26, 2021 3:42:18 PM com.company.Loguri catchLogs
-SEVERE: Conectare esuata
-Apr 26, 2021 3:42:25 PM com.company.Loguri catchLogs
-SEVERE: Conectare esuata
-Apr 26, 2021 3:42:25 PM com.company.Loguri catchLogs
-SEVERE: Conectare esuata
+[27/04/2021  10:43:02:PM] [SEVERE]  Conectare esuata
+[27/04/2021  10:43:05:PM] [INFO]  Conectare reusita
+[27/04/2021  10:43:08:PM] [INFO]  Sortare carti dupa titlu
+[27/04/2021  10:43:10:PM] [INFO]  Sortare carti dupa categorie
+[27/04/2021  10:43:16:PM] [INFO]  Adaugare in wishlist
+[27/04/2021  10:43:17:PM] [INFO]  Stergere din wishlist
+[27/04/2021  10:43:39:PM] [INFO]  Cont creat
