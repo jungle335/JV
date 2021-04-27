@@ -5,20 +5,17 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.List;
 
-public class FisierIN <T> {
-    final Class<T> tip;
-    private String numeFis, separator;
+public class FisierIN {
+    private String numeFisier, separator;
 
-    public FisierIN(final Class<T> tipObiect, String numeFisier, String separa){
-        System.out.println(tipObiect.getSimpleName());
-        this.tip = tipObiect;
-        this.numeFis = numeFisier;
-        this.separator = separa;
+    public FisierIN(String nume, String separator){
+        this.numeFisier = nume;
+        this.separator = separator;
     }
 
     public String[] getInfo(int id){
         try {
-            BufferedReader br = new BufferedReader(new FileReader(numeFis));
+            BufferedReader br = new BufferedReader(new FileReader(numeFisier));
             String row;
             while ((row = br.readLine()) != null) {
                 String[] data = row.split(separator);
@@ -35,7 +32,7 @@ public class FisierIN <T> {
 
     public void writeInFile(List <String> loc){
         try{
-            FileWriter fw = new FileWriter(numeFis);
+            FileWriter fw = new FileWriter(numeFisier);
             for(String s : loc){
                 fw.append(String.join(",", s));
                 fw.append("\n");
@@ -46,4 +43,16 @@ public class FisierIN <T> {
         };
     }
 
+    public void writeInFile(List <String> loc, boolean flag){
+        try{
+            FileWriter fw = new FileWriter(numeFisier, flag);
+            for(String s : loc){
+                fw.append(String.join(",", s));
+                fw.append("\n");
+            }
+            fw.close();
+        } catch (Exception e){
+            return;
+        };
+    }
 }

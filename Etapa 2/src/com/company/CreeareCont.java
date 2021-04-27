@@ -264,7 +264,7 @@ public class CreeareCont implements ActionListener {
                             List<String> data = new ArrayList<>(){{
                                 add(logged.get(0).getNume() + "," + logged.get(0).getPrenume() + "," + elem);
                             }};
-                            out.writeInFile(data);
+                            out.writeInFile(data, true);
                         }catch (Exception e){
                             JOptionPane.showMessageDialog(utilizatorFrame, "Eroare neprevazuta...", "Notificare",
                                     JOptionPane.WARNING_MESSAGE);
@@ -302,16 +302,8 @@ public class CreeareCont implements ActionListener {
                             loc.add(data[0] + "," + data[1] + "," + data[2]);
                         }
                     }
-                    try{
-                        FileWriter fw = new FileWriter("prefUtil.csv");
-                        for(String s : loc){
-                            fw.append(String.join(",", s));
-                            fw.append("\n");
-                        }
-                        fw.close();
-                    } catch (Exception e){
-                        System.out.println("Eroare neprevazuta...");
-                    };
+                    FisierIN out = new FisierIN( "prefUtil.csv", ",");
+                    out.writeInFile(loc);
                     log.catchLogs("I", "Stergere din wishlist");
                 }catch (Exception e){
                     JOptionPane.showMessageDialog(utilizatorFrame, "Eroare neprevazuta...", "Notificare",
