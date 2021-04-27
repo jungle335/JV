@@ -67,8 +67,9 @@ public class Biblioteca {
 
     void addCarte(Carte c){
         try{
-            String [] data = {c.getTitlu(), String.valueOf(c.getIdAutor()), String.valueOf(c.getIdEditura()),
-                    c.getCategorie(), String.valueOf(c.getAnPublicare()), String.valueOf(c.getNrBucati())};
+            String [] data = {String.valueOf(c.getIdCarte()),c.getTitlu(), String.valueOf(c.getIdAutor()),
+                    String.valueOf(c.getIdEditura()), c.getCategorie(), String.valueOf(c.getAnPublicare()),
+                    String.valueOf(c.getNrBucati())};
             FileWriter fw = new FileWriter("carti.csv", true);
             fw.append("\n");
             fw.append(String.join(",", data));
