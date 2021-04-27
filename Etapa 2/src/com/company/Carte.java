@@ -1,6 +1,6 @@
 package com.company;
 
-public class Carte {
+public class Carte implements Comparable<Carte>{
     private static int idUrmator = 1;
     private final int idCarte, idAutor, idEditura, anPublicare, nrBucati;
     private final String titlu, categorie;
@@ -34,8 +34,17 @@ public class Carte {
     public int getAnPublicare() { return anPublicare; }
     public int getNrBucati() { return nrBucati; }
 
+    public int compareTo(Carte c){
+        if (this.anPublicare == c.anPublicare){
+            return 0;
+        }else if(this.anPublicare < c.anPublicare){
+            return -1;
+        }
+        return 1;
+    }
+
     @Override
     public String toString() {
-        return idCarte + " " + idAutor + " " + idEditura + " " + titlu;
+        return titlu + " " + anPublicare;
     }
 }
