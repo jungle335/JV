@@ -6,11 +6,43 @@ import java.util.*;
 
 public class Biblioteca {
     private final Connection con;
+    private final Statement stmt;
+    private final Map<Integer, String> at = new HashMap<>(){{
+        put(1, "int not null");
+        put(2, "varchar(35) not null");
+    }};
 
     public Biblioteca() throws SQLException {
         con = DriverManager.getConnection("jdbc:mysql://localhost:3306/library?user=root&password=Password1");
+        stmt = con.createStatement();
+        try{
+            creareTabele("conturi", Map.entry("id", 1), Map.entry("nume", 2), Map.entry("prenume", 2), Map.entry("parola", 2), Map.entry("valabPermis", 2));
+            creareTabele("autori", Map.entry("id", 1), Map.entry("nume", 2), Map.entry("prenume", 2), Map.entry("tara", 2));
+            creareTabele("edituri",  Map.entry("id", 1), Map.entry("denumire", 2));
+            creareTabele("carti",  Map.entry("id", 1), Map.entry("titlu", 2), Map.entry("idAutor", 1), Map.entry("idEditura", 1), Map.entry("categorie", 2), Map.entry("anPublicare", 1), Map.entry("nrBucati", 1));
+            creareTabele("prefUtil",  Map.entry("id", 1), Map.entry("idCarte", 1));
+        }catch (SQLException e){
+            System.out.println("Tebele sunt create deja!!!");
+        }
     }
 
+    void creareTabele(String nume, Map.Entry<String, Integer> ... atribute) throws SQLException {
+        String sql = "create table " + nume + " ( ";
+        if(!nume.equals("prefUtil")){
+            sql += atribute[0].getKey() + " " + at.get(atribute[0].getValue()) + " auto_increment";
+        }else{
+            sql += atribute[0].getKey() + " " + at.get(atribute[0].getValue()); }
+        for(int i = 1; i < atribute.length; i++) {
+            sql += ", " + atribute[i].getKey() + " " + at.get(atribute[i].getValue());
+        }
+        if(nume.equals("prefUtil")){
+            sql += ", primary key (id, idCarte), foreign key (idCarte) references carti(id)";
+        }else{ sql += ", primary key (id)"; }
+        if(nume.equals("carti")){
+            sql += ", foreign key (idAutor) references autori(id), foreign key (idEditura) references edituri(id)";}
+        sql += ");";
+        stmt.executeUpdate(sql);
+    }
 
     void addCont(Cititor c){
         String [] data = {c.getNume(), c.getPrenume(), c.getParola(), String.valueOf(c.getValabPermisCititor())};
@@ -81,14 +113,29 @@ public class Biblioteca {
             }catch (Exception e){
                 System.out.println(e.getMessage());
                 System.out.println("Autorul nu a putut fi adaugat!");
-            } finally {
-                st.close();
-                con.close();
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
 
+    void modificaAutor(int id_autor, String flag, String ... nou){
+        try{
+            PreparedStatement st = con.prepareStatement("update autori set " + flag + "= ? where id = ?");
+            st.setString(1, nou[0]);
+            st.setInt(2, id_autor);
+            st.executeUpdate();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    void deleteAutor(int id_autor){
+        try{
+            Statement st = con.createStatement();
+            String sql = String.format("%s = %d", "delete from autori where id ", id_autor);
+            st.executeUpdate(sql);
+        }catch (Exception ignored){ }
     }
 
     void addCarte(Carte c){
@@ -105,14 +152,30 @@ public class Biblioteca {
                 st.executeUpdate();
             }catch (Exception e){
                 System.out.println("Cartea nu a putut fi adaugata!");
-            } finally {
-                st.close();
-                con.close();
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             }
         }
+
+    void modificaCarte(int id_carte, String flag, String ... nou){
+        try{
+            PreparedStatement st = con.prepareStatement("update carti set " + flag + " = ? where id = ?");
+            st.setString(1, nou[0]);
+            st.setInt(2, id_carte);
+            st.executeUpdate();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    void deleteCarte(int id_carte){
+        try{
+            Statement st = con.createStatement();
+            String sql = String.format("%s = %d", "delete from carti where id ", id_carte);
+            st.executeUpdate(sql);
+        }catch (Exception ignored){ }
+    }
 
     public void addEdituri(Editura ed){
         try{
@@ -122,13 +185,30 @@ public class Biblioteca {
             try{
                 st.executeUpdate();
             }catch (Exception e){
-                System.out.println(e.getMessage());
                 System.out.println("Editura nu a putut fi adaugata!");
-            } finally {
-                st.close();
-                con.close();
             }
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    void modificaEditura(int id_editura, String ... nou){
+        try{
+            PreparedStatement st = con.prepareStatement("update edituri set denumire = ? where id = ?");
+            st.setString(1, nou[0]);
+            st.setInt(2, id_editura);
+            st.executeUpdate();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    void deleteEditura(int id_editura){
+        try{
+            Statement st = con.createStatement();
+            String sql = String.format("%s = %d", "delete from edituri where id", id_editura);
+            st.executeUpdate(sql);
+        }catch (Exception e){
             System.out.println(e.getMessage());
         }
     }
@@ -203,5 +283,17 @@ public class Biblioteca {
         } catch (Exception e){
             return new String[][]{{"", "", ""}};
         }
+    }
+
+    public List<String> getEdituri(){
+        List<String> edituri = new ArrayList<>();
+        try{
+            ResultSet rez = con.prepareStatement("select * from edituri").executeQuery();
+            while (rez.next()) {
+               edituri.add(rez.getString(2));
+            }
+            return edituri;
+        }catch (Exception ignored){}
+        return edituri;
     }
 }

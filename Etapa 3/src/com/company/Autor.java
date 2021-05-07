@@ -1,20 +1,15 @@
 package com.company;
 
 public class Autor extends Persoana implements Comparable<Autor>{
-    private static int idUrmator = 1;
-    private final int idAutor;
+    private final int idAutor = 0;
     private String tara;
 
     Autor(String nume, String prenume){
         super(nume, prenume);
-        idAutor = idUrmator;
-        idUrmator++;
     }
 
     Autor(String nume, String prenume, String tara){
         super(nume, prenume);
-        idAutor = idUrmator;
-        idUrmator++;
         this.tara = tara;
     }
 

@@ -1,12 +1,10 @@
 package com.company;
 
 public class Carte implements Comparable<Carte>{
-    private static int idUrmator = 1;
-    private final int idCarte, idAutor, idEditura, anPublicare, nrBucati;
+    private final int idCarte = 0, idAutor, idEditura, anPublicare, nrBucati;
     private final String titlu, categorie;
 
     Carte(){
-        this.idCarte = 0;
         this.idAutor = 0;
         this.idEditura = 0;
         this.anPublicare = 0;
@@ -16,8 +14,6 @@ public class Carte implements Comparable<Carte>{
     }
 
     Carte(String titlu, int idAutor, int idEditura, String categorie, int anPublicare, int nrBucati){
-        idCarte = idUrmator;
-        idUrmator++;
         this.titlu = titlu;
         this.idAutor = idAutor;
         this.idEditura = idEditura;
