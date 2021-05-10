@@ -65,6 +65,25 @@ public class Biblioteca {
         }
     }
 
+    void modificareParola(int idUtil, String parolaNoua){
+        try{
+            PreparedStatement st = con.prepareStatement("update conturi set parola = ? where id = ?");
+            st.setString(1, parolaNoua);
+            st.setInt(2, idUtil);
+            st.executeUpdate();
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    void deleteUtilizator(int idUtil){
+        try{
+            Statement st = con.createStatement();
+            String sql = String.format("%s = %d", "delete from conturi where id ", idUtil);
+            st.executeUpdate(sql);
+        }catch (Exception ignored){ }
+    }
+
     public int getUserId(String nume, String prenume){
         try{
             ResultSet rez = con.prepareStatement("select * from conturi").executeQuery();

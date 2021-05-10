@@ -22,7 +22,9 @@ public class Main {
             System.out.println("Pentru a adauga o carte, apasati 11");
             System.out.println("Pentru a modifica o carte, apasati 12");
             System.out.println("Pentru a sterge o carte, apasati 13");
-            System.out.println("Pentru a inchide meniul, apasati 14");
+            System.out.println("Pentru a modifica parola, apasati 14");
+            System.out.println("Pentru a sterge contul, apasati 15");
+            System.out.println("Pentru a inchide meniul, apasati 16");
 
             int op = sc.nextInt();
             switch (op){
@@ -131,6 +133,20 @@ public class Main {
                     break;
 
                 case 14:
+                    System.out.println("Id utilizator:");
+                    int uId = sc.nextInt();
+                    System.out.println("Parola noua:");
+                    String pass = sc.next();
+                    b.modificareParola(uId, pass);
+                    break;
+
+                case 15:
+                    System.out.println("Id utilizator:");
+                    int uIdU = sc.nextInt();
+                    b.deleteUtilizator(uIdU);
+                    break;
+
+                case 16:
                     System.exit(0);
                     break;
             }
