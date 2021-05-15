@@ -5,51 +5,89 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class Biblioteca {
-    private final Connection con;
-    private final Statement stmt;
-    private final Map<Integer, String> at = new HashMap<>(){{
-        put(1, "int not null");
-        put(2, "varchar(35) not null");
+    private static Connection con = null;
+    private static String[] tabele;
+    private static DatabaseMetaData query;
+    private final Map<String, String> at = new HashMap<>(){{
+        put("conturi", "create table conturi " +
+                        "(id int not null auto_increment, " +
+                        "utilizator varchar(50) not null, " +
+                        "nume varchar(10) not null, " +
+                        "prenume varchar(35) not null, " +
+                        "parola varchar(50) not null, " +
+                        "valabPermis varchar(15) not null, " +
+                        "primary key (id))");
+        put("edituri", "create table edituri " +
+                        "(id int not null auto_increment, " +
+                        "denumire varchar(15) not null, " +
+                        "primary key (id))");
+        put("autori", "create table autori " +
+                        "(id int not null auto_increment, " +
+                        "nume varchar(10) not null, " +
+                        "prenume varchar(35) not null, " +
+                        "pseudonim varchar(50), " +
+                        "tara varchar(50) not null, " +
+                        "primary key (id))");
+        put("carti", "create table carti " +
+                        "(id int not null auto_increment, " +
+                        "titlu varchar(30) not null, " +
+                        "idAutor int not null, " +
+                        "idEditura int not null, " +
+                        "categorie varchar(15) not null, " +
+                        "anPublicare int(4) not null, " +
+                        "nrBucati int not null, " +
+                        "primary key (id), " +
+                        "foreign key (idAutor) references autori(id), " +
+                        "foreign key (idEditura) references edituri(id))");
+        put("prefUtil", "create table prefUtil " +
+                            "(id int not null, " +
+                            "idCarte int not null, " +
+                            "primary key (id, idCarte), " +
+                            "foreign key (id) references conturi(id), " +
+                            "foreign key (idCarte) references carti(id))");
     }};
 
-    public Biblioteca() throws SQLException {
-        con = DriverManager.getConnection("jdbc:mysql://localhost:3306/library?user=root&password=Password1");
-        stmt = con.createStatement();
+    static {
         try{
-            creareTabele("conturi", Map.entry("id", 1), Map.entry("nume", 2), Map.entry("prenume", 2), Map.entry("parola", 2), Map.entry("valabPermis", 2));
-            creareTabele("autori", Map.entry("id", 1), Map.entry("nume", 2), Map.entry("prenume", 2), Map.entry("tara", 2));
-            creareTabele("edituri",  Map.entry("id", 1), Map.entry("denumire", 2));
-            creareTabele("carti",  Map.entry("id", 1), Map.entry("titlu", 2), Map.entry("idAutor", 1), Map.entry("idEditura", 1), Map.entry("categorie", 2), Map.entry("anPublicare", 1), Map.entry("nrBucati", 1));
-            creareTabele("prefUtil",  Map.entry("id", 1), Map.entry("idCarte", 1));
-        }catch (SQLException e){
-            System.out.println("Tebele sunt create deja!!!");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/library?user=root&password=Password1");
+            tabele = new String[]{"conturi", "edituri", "autori", "carti", "prefUtil"};
+            query = con.getMetaData();
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
         }
     }
 
-    void creareTabele(String nume, Map.Entry<String, Integer> ... atribute) throws SQLException {
-        String sql = "create table " + nume + " ( ";
-        if(!nume.equals("prefUtil")){
-            sql += atribute[0].getKey() + " " + at.get(atribute[0].getValue()) + " auto_increment";
-        }else{
-            sql += atribute[0].getKey() + " " + at.get(atribute[0].getValue()); }
-        for(int i = 1; i < atribute.length; i++) {
-            sql += ", " + atribute[i].getKey() + " " + at.get(atribute[i].getValue());
+    public Biblioteca() throws SQLException {
+        for (String tabel : tabele){
+            ResultSet rs = query.getTables(null, null, tabel, null);
+            if (!rs.next()){
+                Statement stmt = con.createStatement();
+                stmt.executeUpdate(at.get(tabel));
+            }
         }
-        if(nume.equals("prefUtil")){
-            sql += ", primary key (id, idCarte), foreign key (idCarte) references carti(id)";
-        }else{ sql += ", primary key (id)"; }
-        if(nume.equals("carti")){
-            sql += ", foreign key (idAutor) references autori(id), foreign key (idEditura) references edituri(id)";}
-        sql += ");";
-        stmt.executeUpdate(sql);
+    }
+
+    int verificaUtilizator(String util){
+        try{
+            ResultSet rez = con.prepareStatement("select * from conturi").executeQuery();
+
+            while (rez.next()) {
+                if (Objects.equals(util, rez.getString(2))) {
+                    return 1;
+                }
+            }
+            return 0;
+        }catch (SQLException e){
+            return -1;
+        }
     }
 
     void addCont(Cititor c){
-        String [] data = {c.getNume(), c.getPrenume(), c.getParola(), String.valueOf(c.getValabPermisCititor())};
+        String [] data = {c.getPseudonim(), c.getNume(), c.getPrenume(), c.getParola(), String.valueOf(c.getValabPermisCititor())};
         try{
-            String sql = "insert into conturi (nume, prenume, parola, valabPermis) values (?, ?, ?, ?)";
+            String sql = "insert into conturi (utilizator, nume, prenume, parola, valabPermis) values (?, ?, ?, ?, ?)";
             PreparedStatement st = con.prepareStatement(sql);
-            for(int i = 1; i <= 4; i++){
+            for(int i = 1; i <= 5; i++){
                 st.setString(i, data[i - 1]);
             }
             try{
@@ -65,32 +103,63 @@ public class Biblioteca {
         }
     }
 
-    public int getUserId(String nume, String prenume){
+    int modificareParola(String idUtil, String parolaNoua){
+        try{
+            PreparedStatement st = con.prepareStatement("update conturi set parola = ? where utilizator = ?");
+            st.setString(1, parolaNoua);
+            st.setString(2, idUtil);
+            if (st.executeUpdate() > 0)
+                return 1;
+            return -1;
+        }catch (SQLException e){
+            return -1;
+        }
+    }
+
+    int deleteUtilizator(String util, String parola){
+        try{
+            PreparedStatement du = con.prepareStatement("select * from conturi where utilizator = ?");
+            du.setString(1, util);
+            ResultSet rez = du.executeQuery();
+
+            if (rez.next()) {
+                if (Objects.equals(parola, rez.getString(5))) {
+                    PreparedStatement duu = con.prepareStatement("delete from conturi where utilizator = ?");
+                    duu.setString(1, util);
+                    return duu.executeUpdate();
+                }
+            }
+            return -1;
+        }catch (Exception e){
+            return -1;
+        }
+    }
+
+    public int getUserId(String util){
         try{
             ResultSet rez = con.prepareStatement("select * from conturi").executeQuery();
 
             while(rez.next()){
-                if (Objects.equals(nume, rez.getString(2)) && Objects.equals(prenume, rez.getString(3))) {
+                if (Objects.equals(util, rez.getString(2))) {
                     return rez.getInt(1);
                 }
             }
+            return 0;
         } catch (Exception e){
             return -1;
         }
-        return -1;
     }
 
-    public Map<Boolean, Cititor> verificaCont(String utilizator, String parola) { ;
+    public Map<Boolean, Cititor> verificaCont(String utilizator, String parola) {
         try {
             Map<Boolean, Cititor> ans = new HashMap<>() {};
             ResultSet rez = con.prepareStatement("select * from conturi").executeQuery();
 
             while(rez.next()){
-                String nume = rez.getString(2), prenume = rez.getString(3);
-                String parol = rez.getString(4), valab = rez.getString(5);
-                String user = nume + prenume;
-                if (Objects.equals(utilizator, user)) {
-                    ans.put(Objects.equals(parola, parol), new Cititor(nume, prenume, parol, LocalDate.parse(valab)));
+                String nickname = rez.getString(2), nume = rez.getString(3), prenume = rez.getString(4);
+                String parol = rez.getString(5), valab = rez.getString(6);
+                if (Objects.equals(nickname, utilizator)) {
+                    ans.put(Objects.equals(parola, parol), new Cititor(nickname, nume, prenume, parol, LocalDate.parse(valab)));
                     return ans;
                 }
             }

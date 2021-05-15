@@ -5,8 +5,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -14,12 +12,13 @@ import java.util.*;
 import java.util.List;
 
 
-public class CreeareCont implements ActionListener {
+public class CreeareCont<e> implements ActionListener {
     private JFrame frame = new JFrame("BibleotecaApp");
     private List<Cititor> logged = new ArrayList<>();
     private JLabel nume = new JLabel("Nume: "), prenume = new JLabel("Prenume: "), abon = new JLabel();
-    private JLabel parola = new JLabel("Parola: ");
+    private JLabel parola = new JLabel("Parola: "), util = new JLabel("Utilizator: ");
     private JTextField numeUtilizator = new JTextField(), prenumeUtilizator = new JTextField(), searchBar = new JTextField();
+    private JTextField utilizator = new JTextField();
     private JPasswordField parolaUtilizator = new JPasswordField();
     private JButton register = new JButton("Creare cont "), afis = new JButton("Autori");
     private JButton wishList = new JButton("Carti"), contNou = new JButton("Creeaza");
@@ -46,10 +45,12 @@ public class CreeareCont implements ActionListener {
         contNou.addActionListener(this);
         tabel.setEnabled(false);
         frame.add(abon);
+        frame.add(util);
         frame.add(nume);
         frame.add(prenume);
         frame.add(parola);
         frame.add(searchBar);
+        frame.add(utilizator);
         frame.add(numeUtilizator);
         frame.add(prenumeUtilizator);
         frame.add(parolaUtilizator);
@@ -69,36 +70,47 @@ public class CreeareCont implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == register) {
-            nume.setBounds(125, 170, 85, 30);
-            prenume.setBounds(125, 215, 85, 30);
-            parola.setBounds(125, 260, 85, 30);
-            numeUtilizator.setBounds(250, 170, 170, 30);
-            prenumeUtilizator.setBounds(250, 215, 170, 30);
-            parolaUtilizator.setBounds(250, 260, 170, 30);
+            util.setBounds(125, 170, 85, 30);
+            nume.setBounds(125, 215, 85, 30);
+            prenume.setBounds(125, 260, 85, 30);
+            parola.setBounds(125, 305, 85, 30);
+            utilizator.setBounds(250, 170, 170, 30);
+            numeUtilizator.setBounds(250, 215, 170, 30);
+            prenumeUtilizator.setBounds(250, 260, 170, 30);
+            parolaUtilizator.setBounds(250, 305, 170, 30);
             contNou.setBounds(400, 450, 115, 30);
         }
 
         if(e.getSource() == contNou) {
-            nume.setVisible(false);
-            prenume.setVisible(false);
-            abon.setVisible(false);
-            parola.setVisible(false);
-            numeUtilizator.setVisible(false);
-            prenumeUtilizator.setVisible(false);
-            parolaUtilizator.setVisible(false);
-            contNou.setVisible(false);
+            String nickname = utilizator.getText();
+            int verifCont = b.verificaUtilizator(nickname);
 
-            String nume = numeUtilizator.getText(), prenume = prenumeUtilizator.getText();
-            String parola = new String(parolaUtilizator.getPassword());
-            if (nume.length() > 0 && prenume.length() > 0 && parola.length() > 0) {
-                Cititor cititor = new Cititor(nume, prenume, parola, LocalDate.now().plusMonths(3));
-                JOptionPane.showMessageDialog(frame, "Utilizator: " + nume + prenume, "Notificare", JOptionPane.INFORMATION_MESSAGE);
-                b.addCont(cititor);
-                log.catchLogs("I", "Cont creat");
+            if (verifCont == 0) {
+                String num = numeUtilizator.getText(), prenum = prenumeUtilizator.getText();
+                String parolaa = new String(parolaUtilizator.getPassword());
+                if(num.length() > 0 && prenum.length() > 0 && parolaa.length() > 0){
+                    Cititor cititor = new Cititor(nickname, num, prenum, parolaa, LocalDate.now().plusMonths(3));
+                    b.addCont(cititor);
+                    log.catchLogs("I", "Cont creat");
+                    util.setVisible(false);
+                    nume.setVisible(false);
+                    prenume.setVisible(false);
+                    abon.setVisible(false);
+                    parola.setVisible(false);
+                    numeUtilizator.setVisible(false);
+                    prenumeUtilizator.setVisible(false);
+                    parolaUtilizator.setVisible(false);
+                    utilizator.setVisible(false);
+                    contNou.setVisible(false);
+                }else{
+                    JOptionPane.showMessageDialog(frame, "Date incomplete...", "Notificare", JOptionPane.ERROR_MESSAGE);
+                    log.catchLogs("E", "Esuare la crearea contului");
+                }
+            }else if(verifCont == 1){
+                JOptionPane.showMessageDialog(frame, "Nume utilizator deja existent", "Notificare", JOptionPane.INFORMATION_MESSAGE);
             }
             else{
-                JOptionPane.showMessageDialog(frame, "Verificati datele...", "Notificare", JOptionPane.ERROR_MESSAGE);
-                log.catchLogs("E", "Esuare la crearea contului");
+                JOptionPane.showMessageDialog(frame, "Eroare neprevazuta...", "Notificare", JOptionPane.ERROR_MESSAGE);
             }
         }
 
@@ -143,6 +155,7 @@ public class CreeareCont implements ActionListener {
         }
     }
 
+
     public String[][] umpleJtable(String[][] str){
         int i = 0, dim = str.length;
         String [][] info = new String[dim][dim];
@@ -177,16 +190,18 @@ public class CreeareCont implements ActionListener {
         JLabel u = new JLabel("Utilizator: "), parolaU = new JLabel("Parola: ");
         JTextField uLogin = new JTextField();
         JPasswordField parLog = new JPasswordField();
-        JButton login = new JButton("Intra in cont");
+        JButton login = new JButton("Intra in cont"), resetP = new JButton("Reseteaza parola"), stergC = new JButton("Sterge cont");
 
         u.setBounds(50, 70, 100, 30);
         parolaU.setBounds(50, 115, 100, 30);
-        uLogin.setBounds(150, 70, 140, 30);
-        parLog.setBounds(150, 115, 140, 30);
-        login.setBounds(200, 300, 115, 30);
+        uLogin.setBounds(150, 70, 170, 30);
+        parLog.setBounds(150, 115, 170, 30);
+        login.setBounds(200, 200, 115, 30);
+        resetP.setBounds(190, 245, 135,30);
+        stergC.setBounds(190, 290,135, 30);
         login.addActionListener(e12 -> {String utilizator = uLogin.getText(), parola1 = new String(parLog.getPassword());
 
-        Map.Entry<Boolean, Cititor> user_info = b.verificaCont(utilizator, parola1).entrySet().iterator().next();
+        Map.Entry <Boolean, Cititor> user_info = b.verificaCont(utilizator, parola1).entrySet().iterator().next();
         if (user_info.getKey()) {
             log.catchLogs("I", "Conectare reusita");
             flag = true;
@@ -200,12 +215,32 @@ public class CreeareCont implements ActionListener {
             JOptionPane.showMessageDialog(loginFrame, "Autentificare nereusita", "Notificare", JOptionPane.ERROR_MESSAGE);
             log.catchLogs("E", "Conectare esuata");
         }});
+
         loginFrame.add(u);
         loginFrame.add(uLogin);
         loginFrame.add(parLog);
         loginFrame.add(parolaU);
         loginFrame.add(login);
-        loginFrame.setSize(400, 400);
+        loginFrame.add(resetP);
+        loginFrame.add(stergC);
+        resetP.addActionListener(e -> {
+            int par = b.modificareParola(uLogin.getText(), new String(parLog.getPassword()));
+            if (par == 1){
+                JOptionPane.showMessageDialog(loginFrame, "Parola modificata cu succes!", "Notificare", JOptionPane.INFORMATION_MESSAGE);
+            } else{
+                JOptionPane.showMessageDialog(loginFrame, "Eroare neprevazuta...", "Notificare", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+        stergC.addActionListener(e -> {
+            int del = b.deleteUtilizator(uLogin.getText(), new String(parLog.getPassword()));
+            if (del > 0){
+                JOptionPane.showMessageDialog(loginFrame, " Cont sters!", "Notificare", JOptionPane.INFORMATION_MESSAGE);
+                loginFrame.dispatchEvent(new WindowEvent(loginFrame, WindowEvent.WINDOW_CLOSING));
+            }else{
+                JOptionPane.showMessageDialog(loginFrame, "Eroare neprevazuta...", "Notificare", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+        loginFrame.setSize(400, 380);
         loginFrame.setLayout(null);
         loginFrame.setVisible(true);
         loginFrame.setResizable(false);
@@ -237,7 +272,7 @@ public class CreeareCont implements ActionListener {
 
         DefaultListModel modell = new DefaultListModel();
         try{
-            int user_id = b.getUserId(logged.get(0).getNume(), logged.get(0).getPrenume());
+            int user_id = b.getUserId(logged.get(0).getPseudonim());
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/library?user=root&password=Password1");
             String sql = String.format("%s = %d", "select * from prefUtil where id", user_id);
             ResultSet rez = con.prepareStatement(sql).executeQuery();
@@ -260,7 +295,7 @@ public class CreeareCont implements ActionListener {
                     throw new Exception();
                 }
                 if (!modell.contains(elem)) {
-                    int user_id = b.getUserId(logged.get(0).getNume(), logged.get(0).getPrenume());
+                    int user_id = b.getUserId(logged.get(0).getPseudonim());
                     modell.addElement(elem);
                     log.catchLogs("I", "Adaugare in wishlist");
                     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/library?user=root&password=Password1");
@@ -274,7 +309,7 @@ public class CreeareCont implements ActionListener {
             }
         });
         btn1.addActionListener(e15 -> {
-                int id_carte = Integer.parseInt(jtf.getText()), user_id = b.getUserId(logged.get(0).getNume(), logged.get(0).getPrenume());
+                int id_carte = Integer.parseInt(jtf.getText()), user_id = b.getUserId(logged.get(0).getPseudonim());
                 String elem = b.getTitluCarte(id_carte);
                 try {
                     if (Objects.equals(elem, "")) {
