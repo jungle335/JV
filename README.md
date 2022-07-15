@@ -1,8 +1,6 @@
-# JV
-Aplicatia contine in fereastra principala 4 butoane (Autori, Creare cont, Carti, Creeaza). 
-Pentru a utiliza aplicatia, utilizatorul trebuie sa isi creeze un cont introducand numele, prenumele si o parola. Dupa creeare contului, se apasa butonul "Creeaza" si se afiseaza numele de utilizator format prin concatenarea numelui si a prenumelui. Dupa introducerea numelui de utilizator si a parolei, se apasa butonul "Intra in cont". 
-Butonul "Carti" (devine accesibil) din fereastra principala ne duce in pagina utilizatorului. Aici, acesta poate vedea detalii despre cartile existente (titlu, categoria, numele si prenumele autorului). De asemenea, utilizatorul poate adauga si sterge carti din propriul lui notes (aflat in dreapta ferestrei). Pentru a adauga/sterge carti din notes, trebuie introdus id-ul carti respective si apasarea butonului Adauga/Sterge. De asemenea, cartile se pot ordona dupa titlu sau categorie.
-Butonul "Autori" (devine accesibil) din fereastra principala ne duce la lista autorilor. Aici, se pot cauta autori dupa nume sau prenume.
-In fereastra principala, dupa ce utilizatorul se logheaza, este afisata data expirarii permisului de cititor (valabil 3 luni de la data creeari contului).
-In pagina utilizatorului exista butonul "Programare" ce permite rezervarea unui loc pentru a citi o anume carte la bibleoteca.
-
+## Java library
+1. The application contains a main window that consists of four buttons (Authors, Register account, Books, Create).
+2. In order to be able to use the app, the user should create an account by introducing credentials such as last name, first name and a password. After the cont is created, the button called Create should be pressed for displaying the username (the last name is concatenated with the first name). 
+3. After introducing the credentials, the user will be able to log in by pressing the Login button. 
+4. In the main window, after the user's autentification, it is showed the expiraton date of the reader's license (it is available three months from the account's creation. In the user page, it is showed a new button where the user can make a reservation at the library in order to read a certain book.
+5. After log in, the Books button is accessible from the main window and takes us on the user page. Here, the user can visualize some details about the existent books such as the title, the category, the last name and also, the first name of the author. Furthermore, the user can add and detele books from his own notebook (it is situated in the right of the screen). In order to add / delete some books from the notebook, he should enter the book's id and should tap on the respective button Add / Delete. In addition to this, the books can be sorted by title or category.
